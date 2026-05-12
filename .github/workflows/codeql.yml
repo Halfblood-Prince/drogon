@@ -1,0 +1,64 @@
+name: CodeQL
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  schedule:
+    - cron: "21 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    name: Analyze C++ and JavaScript
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v4
+        with:
+          languages: c-cpp,javascript-typescript
+          build-mode: manual
+          queries: security-extended,security-and-quality
+
+      - name: Clone vcpkg
+        shell: pwsh
+        run: git clone --filter=blob:none https://github.com/microsoft/vcpkg "$env:VCPKG_ROOT"
+        env:
+          VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+
+      - name: Bootstrap vcpkg
+        shell: pwsh
+        run: '& "$env:VCPKG_ROOT/bootstrap-vcpkg.sh" -disableMetrics'
+        env:
+          VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+
+      - name: Configure
+        shell: pwsh
+        run: |
+          cmake `
+            -S . `
+            -B build `
+            -DCMAKE_BUILD_TYPE=Debug `
+            -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
+            -DVCPKG_TARGET_TRIPLET=x64-linux
+        env:
+          VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+
+      - name: Build
+        shell: pwsh
+        run: cmake --build build --config Debug --parallel
+
+      - name: Perform CodeQL analysis
+        uses: github/codeql-action/analyze@v4
+        with:
+          category: "/language:cpp-js"

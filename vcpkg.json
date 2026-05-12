@@ -2,7 +2,12 @@
   "name": "aerosentinel-control-center",
   "version-string": "1.0.0",
   "description": "A Drogon C++ web dashboard styled as an AeroSentinel drone control center.",
+  "builtin-baseline": "56bb2411609227288b70117ead2c47585ba07713",
   "dependencies": [
-    "drogon"
+    "drogon",
+    {
+      "name": "webview2",
+      "platform": "windows"
+    }
   ]
 }

@@ -27,7 +27,34 @@ add_custom_command(TARGET aerosentinel-control POST_BUILD
         "${CMAKE_SOURCE_DIR}/public"
         "$<TARGET_FILE_DIR:aerosentinel-control>/public")
 
-install(TARGETS aerosentinel-control
+set(_aerosentinel_install_targets aerosentinel-control)
+
+if(WIN32)
+    enable_language(RC)
+    find_package(unofficial-webview2 CONFIG REQUIRED)
+
+    add_executable(aerosentinel-desktop WIN32
+        src/desktop_win.cc
+        resources/windows/aerosentinel.rc)
+
+    target_compile_definitions(aerosentinel-desktop
+        PRIVATE
+            UNICODE
+            _UNICODE)
+
+    target_link_libraries(aerosentinel-desktop
+        PRIVATE
+            unofficial::webview2::webview2
+            ole32
+            shell32
+            user32
+            ws2_32)
+
+    add_dependencies(aerosentinel-desktop aerosentinel-control)
+    list(APPEND _aerosentinel_install_targets aerosentinel-desktop)
+endif()
+
+install(TARGETS ${_aerosentinel_install_targets}
     RUNTIME_DEPENDENCY_SET aerosentinel_runtime_deps
     RUNTIME DESTINATION .
     LIBRARY DESTINATION .

@@ -1,9 +1,6 @@
 name: Build Drogon binaries
 
 on:
-  push:
-    branches: ["main"]
-  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -47,7 +44,7 @@ jobs:
 
       - name: Clone vcpkg
         shell: pwsh
-        run: git clone --depth 1 https://github.com/microsoft/vcpkg "$env:VCPKG_ROOT"
+        run: git clone --filter=blob:none https://github.com/microsoft/vcpkg "$env:VCPKG_ROOT"
         env:
           VCPKG_ROOT: ${{ github.workspace }}/vcpkg
 
@@ -95,3 +92,40 @@ jobs:
         with:
           name: ${{ matrix.artifact_name }}
           path: dist/${{ matrix.artifact_name }}
+
+  package-windows-installer:
+    name: aerosentinel-windows-installer
+    needs: build
+    if: ${{ always() }}
+    runs-on: windows-2025
+
+    steps:
+      - name: Check out installer source
+        uses: actions/checkout@v4
+
+      - name: Download Windows x64 payload
+        uses: actions/download-artifact@v4
+        with:
+          name: aerosentinel-windows-x64
+          path: installer-package/payload/x64
+
+      - name: Download Windows arm64 payload
+        uses: actions/download-artifact@v4
+        with:
+          name: aerosentinel-windows-arm64
+          path: installer-package/payload/arm64
+
+      - name: Assemble architecture-aware installer
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Copy-Item installer/windows/install-aerosentinel.ps1 installer-package/install-aerosentinel.ps1 -Force
+          Copy-Item installer/windows/install-aerosentinel.cmd installer-package/install-aerosentinel.cmd -Force
+          Copy-Item installer/windows/README.md installer-package/README.md -Force
+          Compress-Archive -Path installer-package/* -DestinationPath dist/aerosentinel-windows-installer.zip -Force
+
+      - name: Upload Windows installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: aerosentinel-windows-installer
+          path: dist/aerosentinel-windows-installer.zip
