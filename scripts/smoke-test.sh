@@ -94,7 +94,6 @@ assert_status "${status}" "401" "protected API rejection"
 assert_contains "${BODY_FILE}" "authentication_required"
 
 status="$(curl --silent --show-error --output "${BODY_FILE}" --dump-header "${HEADER_FILE}" --write-out "%{http_code}" \
-  --request POST \
   --data "username=operator&password=wrong-password" \
   "${BASE_URL}/login")"
 assert_status "${status}" "302" "bad login redirect"
@@ -102,12 +101,20 @@ assert_contains "${HEADER_FILE}" "Location: /login?error=1"
 
 status="$(curl --silent --show-error --output "${BODY_FILE}" --dump-header "${HEADER_FILE}" --write-out "%{http_code}" \
   --cookie-jar "${COOKIE_JAR}" \
-  --request POST \
   --data "username=operator&password=smoke-password" \
   "${BASE_URL}/login")"
 assert_status "${status}" "302" "good login redirect"
 assert_contains "${HEADER_FILE}" "Set-Cookie: aerosentinel_session="
 assert_contains "${HEADER_FILE}" "Location: /mission/alpha-0426"
+
+status="$(curl --silent --show-error --location --output "${BODY_FILE}" --dump-header "${HEADER_FILE}" --write-out "%{http_code}" \
+  --cookie-jar "${COOKIE_JAR}" \
+  --cookie "${COOKIE_JAR}" \
+  --data "username=operator&password=smoke-password" \
+  "${BASE_URL}/login")"
+assert_status "${status}" "200" "good login followed redirect"
+assert_contains "${BODY_FILE}" "AeroSentinel"
+assert_contains "${BODY_FILE}" "Mission: ALPHA-0426"
 
 status="$(curl --silent --show-error --output "${BODY_FILE}" --dump-header "${HEADER_FILE}" --write-out "%{http_code}" \
   --cookie "${COOKIE_JAR}" \

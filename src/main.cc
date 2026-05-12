@@ -262,6 +262,19 @@ std::string formValue(std::string_view body, std::string_view key)
     return {};
 }
 
+std::string requestFormValue(const drogon::HttpRequestPtr &request,
+                             std::string_view body,
+                             const std::string &key)
+{
+    auto value = request->getParameter(key);
+    if (!value.empty())
+    {
+        return value;
+    }
+
+    return formValue(body, key);
+}
+
 std::string trim(std::string_view value)
 {
     while (!value.empty() && std::isspace(static_cast<unsigned char>(value.front())))
@@ -350,6 +363,7 @@ drogon::HttpResponsePtr loginPage(bool showError)
 
     auto response = drogon::HttpResponse::newHttpResponse();
     response->addHeader("Content-Type", "text/html; charset=utf-8");
+    response->addHeader("Cache-Control", "no-store");
     response->setBody(
         "<!doctype html>"
         "<html lang=\"en\">"
@@ -468,18 +482,20 @@ int main(int argc, char *argv[])
         [auth, sessions](const drogon::HttpRequestPtr &request,
                          std::function<void(const drogon::HttpResponsePtr &)> &&callback) {
             const auto body = std::string_view(request->body().data(), request->body().size());
-            const auto username = formValue(body, "username");
-            const auto password = formValue(body, "password");
+            const auto username = requestFormValue(request, body, "username");
+            const auto password = requestFormValue(request, body, "password");
 
             if (constantTimeEquals(username, auth.username) &&
                 constantTimeEquals(password, auth.password))
             {
                 auto response = redirectTo("/mission/alpha-0426");
+                response->addHeader("Cache-Control", "no-store");
                 response->addHeader("Set-Cookie", sessionCookie(sessions->create(), auth.secureCookies));
                 callback(response);
                 return;
             }
 
+            LOG_WARN << "Failed login attempt for user '" << username << "'";
             callback(redirectTo("/login?error=1"));
         },
         {drogon::Post});

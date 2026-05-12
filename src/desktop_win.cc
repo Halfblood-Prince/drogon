@@ -220,7 +220,12 @@ std::wstring dashboardUrl()
 
 void initializeWebView()
 {
-    const auto userData = (localAppDataPath() / L"AeroSentinel" / L"WebView2").wstring();
+    const auto userDataPath = localAppDataPath() / L"AeroSentinel" / L"WebView2";
+    std::error_code cleanupError;
+    std::filesystem::remove_all(userDataPath / L"Default" / L"Cookies", cleanupError);
+    cleanupError.clear();
+    std::filesystem::remove_all(userDataPath / L"Default" / L"Network", cleanupError);
+    const auto userData = userDataPath.wstring();
 
     HRESULT result = CreateCoreWebView2EnvironmentWithOptions(
         nullptr,
