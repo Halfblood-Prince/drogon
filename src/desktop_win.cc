@@ -7,6 +7,8 @@
 
 #include <winsock2.h>
 #include <windows.h>
+#include <objbase.h>
+#include <unknwn.h>
 #include <ws2tcpip.h>
 
 #include <WebView2.h>

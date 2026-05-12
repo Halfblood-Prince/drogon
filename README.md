@@ -48,4 +48,7 @@ ctest --test-dir build --output-on-failure
 
 ## CI Binaries
 
-`.github/workflows/build-binaries.yml` builds and uploads release artifacts for Linux, Windows, and macOS on x64 and arm64 GitHub-hosted runners. It also creates `aerosentinel-windows-installer.zip`, which detects the Windows computer architecture and installs the matching x64 or arm64 desktop payload with a Start menu shortcut and registered uninstaller.
+`.github/workflows/build-binaries.yml` builds and uploads release artifacts for Linux, Windows, and macOS on x64 and arm64 GitHub-hosted runners. It also creates:
+
+- `aerosentinel-linux-installer.tar.gz`, which detects Linux x64 or arm64 and installs the matching CLI payload.
+- `aerosentinel-windows-installer.zip`, which detects the Windows computer architecture and installs the matching x64 or arm64 desktop payload with a Start menu shortcut and registered uninstaller.

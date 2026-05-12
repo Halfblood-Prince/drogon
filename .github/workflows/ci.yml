@@ -19,6 +19,12 @@ jobs:
       - name: Check out source
         uses: actions/checkout@v6
 
+      - name: Check shell scripts
+        shell: bash
+        run: |
+          bash -n scripts/smoke-test.sh
+          bash -n installer/linux/install-aerosentinel.sh
+
       - name: Clone vcpkg
         shell: pwsh
         run: git clone https://github.com/microsoft/vcpkg "$env:VCPKG_ROOT"

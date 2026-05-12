@@ -93,6 +93,44 @@ jobs:
           name: ${{ matrix.artifact_name }}
           path: dist/${{ matrix.artifact_name }}
 
+  package-linux-installer:
+    name: aerosentinel-linux-installer
+    needs: build
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Check out installer source
+        uses: actions/checkout@v6
+
+      - name: Download Linux x64 payload
+        uses: actions/download-artifact@v8
+        with:
+          name: aerosentinel-linux-x64
+          path: installer-package/payload/x64
+
+      - name: Download Linux arm64 payload
+        uses: actions/download-artifact@v8
+        with:
+          name: aerosentinel-linux-arm64
+          path: installer-package/payload/arm64
+
+      - name: Assemble architecture-aware Linux installer
+        shell: bash
+        run: |
+          mkdir -p dist
+          cp installer/linux/install-aerosentinel.sh installer-package/install-aerosentinel.sh
+          cp installer/linux/README.md installer-package/README.md
+          chmod +x installer-package/install-aerosentinel.sh
+          chmod +x installer-package/payload/x64/aerosentinel-control
+          chmod +x installer-package/payload/arm64/aerosentinel-control
+          tar -czf dist/aerosentinel-linux-installer.tar.gz -C installer-package .
+
+      - name: Upload Linux installer
+        uses: actions/upload-artifact@v7
+        with:
+          name: aerosentinel-linux-installer
+          path: dist/aerosentinel-linux-installer.tar.gz
+
   package-windows-installer:
     name: aerosentinel-windows-installer
     needs: build
