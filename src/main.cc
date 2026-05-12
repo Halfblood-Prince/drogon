@@ -178,7 +178,7 @@ bool envFlag(const char *name)
 bool constantTimeEquals(const std::string &left, const std::string &right)
 {
     unsigned char diff = static_cast<unsigned char>(left.size() ^ right.size());
-    const auto length = std::max(left.size(), right.size());
+    const auto length = left.size() > right.size() ? left.size() : right.size();
     for (size_t index = 0; index < length; ++index)
     {
         const auto leftChar = index < left.size() ? static_cast<unsigned char>(left[index]) : 0;

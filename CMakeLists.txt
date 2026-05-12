@@ -22,6 +22,13 @@ target_compile_definitions(aerosentinel-control
     PRIVATE
         AEROSENTINEL_VERSION="${PROJECT_VERSION}")
 
+if(WIN32)
+    target_compile_definitions(aerosentinel-control
+        PRIVATE
+            NOMINMAX
+            WIN32_LEAN_AND_MEAN)
+endif()
+
 include(CTest)
 
 if(BUILD_TESTING AND UNIX)
@@ -60,6 +67,8 @@ if(WIN32)
 
     target_compile_definitions(aerosentinel-desktop
         PRIVATE
+            NOMINMAX
+            WIN32_LEAN_AND_MEAN
             UNICODE
             _UNICODE)
 
