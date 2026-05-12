@@ -1,0 +1,12 @@
+build/
+dist/
+out/
+.vs/
+.vscode/
+vcpkg/
+vcpkg_installed/
+logs/
+*.user
+*.suo
+*.swp
+*.tmp

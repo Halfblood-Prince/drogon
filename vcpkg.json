@@ -1,0 +1,8 @@
+{
+  "name": "aerosentinel-control-center",
+  "version-string": "1.0.0",
+  "description": "A Drogon C++ web dashboard styled as an AeroSentinel drone control center.",
+  "dependencies": [
+    "drogon"
+  ]
+}
