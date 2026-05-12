@@ -36,6 +36,16 @@ $env:AEROSENTINEL_PASSWORD="change-this-password"
 
 For HTTPS deployments, also set `AEROSENTINEL_SECURE_COOKIES=true` so browsers only send the session cookie over TLS.
 
+## Tests
+
+On Unix-like runners, CTest runs an HTTP smoke test that starts the server, checks the login page, verifies protected redirects, signs in with a test account, calls the mission API, and confirms logout invalidates the session.
+
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_TOOLCHAIN_FILE="$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+cmake --build build --config RelWithDebInfo
+ctest --test-dir build --output-on-failure
+```
+
 ## CI Binaries
 
 `.github/workflows/build-binaries.yml` builds and uploads release artifacts for Linux, Windows, and macOS on x64 and arm64 GitHub-hosted runners. It also creates `aerosentinel-windows-installer.zip`, which detects the Windows computer architecture and installs the matching x64 or arm64 desktop payload with a Start menu shortcut and registered uninstaller.

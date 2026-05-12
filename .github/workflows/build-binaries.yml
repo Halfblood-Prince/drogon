@@ -96,7 +96,6 @@ jobs:
   package-windows-installer:
     name: aerosentinel-windows-installer
     needs: build
-    if: ${{ always() }}
     runs-on: windows-2025
 
     steps:

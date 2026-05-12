@@ -22,6 +22,27 @@ target_compile_definitions(aerosentinel-control
     PRIVATE
         AEROSENTINEL_VERSION="${PROJECT_VERSION}")
 
+include(CTest)
+
+if(BUILD_TESTING AND UNIX)
+    find_program(BASH_EXECUTABLE bash)
+    find_program(CURL_EXECUTABLE curl)
+
+    if(BASH_EXECUTABLE AND CURL_EXECUTABLE)
+        add_test(
+            NAME aerosentinel_http_smoke
+            COMMAND
+                "${BASH_EXECUTABLE}"
+                "${CMAKE_SOURCE_DIR}/scripts/smoke-test.sh"
+                "$<TARGET_FILE:aerosentinel-control>")
+
+        set_tests_properties(aerosentinel_http_smoke
+            PROPERTIES
+                WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+                TIMEOUT 30)
+    endif()
+endif()
+
 add_custom_command(TARGET aerosentinel-control POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${CMAKE_SOURCE_DIR}/public"
@@ -79,6 +100,7 @@ install(RUNTIME_DEPENDENCY_SET aerosentinel_runtime_deps
     PRE_EXCLUDE_REGEXES
         "api-ms-.*"
         "ext-ms-.*"
+        "^[Ww][Tt][Dd][Cc][Cc][Mm]\\.dll$"
     POST_EXCLUDE_REGEXES
         ".*[Ww]indows/[Ss]ystem32/.*"
         "^/lib/.*"

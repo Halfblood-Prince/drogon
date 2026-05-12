@@ -16,8 +16,18 @@ permissions:
 
 jobs:
   analyze:
-    name: Analyze C++ and JavaScript
+    name: Analyze ${{ matrix.language }}
     runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: c-cpp
+            build_mode: manual
+            category: cpp
+          - language: javascript-typescript
+            build_mode: none
+            category: javascript
 
     steps:
       - name: Check out source
@@ -26,23 +36,26 @@ jobs:
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v4
         with:
-          languages: c-cpp,javascript-typescript
-          build-mode: manual
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build_mode }}
           queries: security-extended,security-and-quality
 
       - name: Clone vcpkg
+        if: ${{ matrix.language == 'c-cpp' }}
         shell: pwsh
         run: git clone --filter=blob:none https://github.com/microsoft/vcpkg "$env:VCPKG_ROOT"
         env:
           VCPKG_ROOT: ${{ github.workspace }}/vcpkg
 
       - name: Bootstrap vcpkg
+        if: ${{ matrix.language == 'c-cpp' }}
         shell: pwsh
         run: '& "$env:VCPKG_ROOT/bootstrap-vcpkg.sh" -disableMetrics'
         env:
           VCPKG_ROOT: ${{ github.workspace }}/vcpkg
 
-      - name: Configure
+      - name: Configure C++
+        if: ${{ matrix.language == 'c-cpp' }}
         shell: pwsh
         run: |
           cmake `
@@ -54,11 +67,12 @@ jobs:
         env:
           VCPKG_ROOT: ${{ github.workspace }}/vcpkg
 
-      - name: Build
+      - name: Build C++
+        if: ${{ matrix.language == 'c-cpp' }}
         shell: pwsh
         run: cmake --build build --config Debug --parallel
 
       - name: Perform CodeQL analysis
         uses: github/codeql-action/analyze@v4
         with:
-          category: "/language:cpp-js"
+          category: "/language:${{ matrix.category }}"

@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux-smoke:
+    name: Linux build and smoke test
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Clone vcpkg
+        shell: pwsh
+        run: git clone --filter=blob:none https://github.com/microsoft/vcpkg "$env:VCPKG_ROOT"
+        env:
+          VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+
+      - name: Bootstrap vcpkg
+        shell: pwsh
+        run: '& "$env:VCPKG_ROOT/bootstrap-vcpkg.sh" -disableMetrics'
+        env:
+          VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+
+      - name: Configure
+        shell: pwsh
+        run: |
+          cmake `
+            -S . `
+            -B build `
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo `
+            -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake" `
+            -DVCPKG_TARGET_TRIPLET=x64-linux
+        env:
+          VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+
+      - name: Build
+        shell: pwsh
+        run: cmake --build build --config RelWithDebInfo --parallel
+
+      - name: Run smoke tests
+        shell: pwsh
+        run: ctest --test-dir build --output-on-failure
+
+  windows-installer-check:
+    name: Windows installer syntax check
+    runs-on: windows-2025
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Parse installer script
+        shell: pwsh
+        run: |
+          $errors = $null
+          $tokens = $null
+          [System.Management.Automation.Language.Parser]::ParseFile(
+            (Resolve-Path 'installer/windows/install-aerosentinel.ps1'),
+            [ref]$tokens,
+            [ref]$errors
+          ) | Out-Null
+
+          if ($errors) {
+            $errors | Format-List *
+            exit 1
+          }
