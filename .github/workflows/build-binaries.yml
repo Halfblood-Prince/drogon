@@ -40,7 +40,7 @@ jobs:
 
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Clone vcpkg
         shell: pwsh
@@ -88,7 +88,7 @@ jobs:
         run: cmake --install build --config "${{ matrix.build_type }}" --prefix "dist/${{ matrix.artifact_name }}"
 
       - name: Upload compiled binary
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.artifact_name }}
           path: dist/${{ matrix.artifact_name }}
@@ -100,16 +100,16 @@ jobs:
 
     steps:
       - name: Check out installer source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Download Windows x64 payload
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: aerosentinel-windows-x64
           path: installer-package/payload/x64
 
       - name: Download Windows arm64 payload
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: aerosentinel-windows-arm64
           path: installer-package/payload/arm64
@@ -124,7 +124,7 @@ jobs:
           Compress-Archive -Path installer-package/* -DestinationPath dist/aerosentinel-windows-installer.zip -Force
 
       - name: Upload Windows installer
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: aerosentinel-windows-installer
           path: dist/aerosentinel-windows-installer.zip
