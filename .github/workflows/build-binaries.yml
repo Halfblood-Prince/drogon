@@ -44,7 +44,7 @@ jobs:
 
       - name: Clone vcpkg
         shell: pwsh
-        run: git clone --filter=blob:none https://github.com/microsoft/vcpkg "$env:VCPKG_ROOT"
+        run: git clone https://github.com/microsoft/vcpkg "$env:VCPKG_ROOT"
         env:
           VCPKG_ROOT: ${{ github.workspace }}/vcpkg
 

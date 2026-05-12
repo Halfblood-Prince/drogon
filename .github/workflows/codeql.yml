@@ -43,7 +43,7 @@ jobs:
       - name: Clone vcpkg
         if: ${{ matrix.language == 'c-cpp' }}
         shell: pwsh
-        run: git clone --filter=blob:none https://github.com/microsoft/vcpkg "$env:VCPKG_ROOT"
+        run: git clone https://github.com/microsoft/vcpkg "$env:VCPKG_ROOT"
         env:
           VCPKG_ROOT: ${{ github.workspace }}/vcpkg
 
