@@ -110,8 +110,10 @@ install(RUNTIME_DEPENDENCY_SET aerosentinel_runtime_deps
         "api-ms-.*"
         "ext-ms-.*"
         "^[Ww][Tt][Dd][Cc][Cc][Mm]\\.dll$"
+        "^[Hh][Vv][Ss][Ii][Ff][Ii][Ll][Ee][Tt][Rr][Uu][Ss][Tt]\\.dll$"
     POST_EXCLUDE_REGEXES
-        ".*[Ww]indows/[Ss]ystem32/.*"
+        ".*[Ww]indows[/\\\\][Ss]ystem32[/\\\\].*"
+        ".*[Ww]indows[/\\\\][Ss]ys[Ww][Oo][Ww]64[/\\\\].*"
         "^/lib/.*"
         "^/usr/lib/.*"
         "^/System/Library/.*"
