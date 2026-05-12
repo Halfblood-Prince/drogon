@@ -96,14 +96,14 @@ assert_contains "${BODY_FILE}" "authentication_required"
 status="$(curl --silent --show-error --output "${BODY_FILE}" --dump-header "${HEADER_FILE}" --write-out "%{http_code}" \
   --data "username=operator&password=wrong-password" \
   "${BASE_URL}/login")"
-assert_status "${status}" "302" "bad login redirect"
+assert_status "${status}" "303" "bad login redirect"
 assert_contains "${HEADER_FILE}" "Location: /login?error=1"
 
 status="$(curl --silent --show-error --output "${BODY_FILE}" --dump-header "${HEADER_FILE}" --write-out "%{http_code}" \
   --cookie-jar "${COOKIE_JAR}" \
   --data "username=operator&password=smoke-password" \
   "${BASE_URL}/login")"
-assert_status "${status}" "302" "good login redirect"
+assert_status "${status}" "303" "good login redirect"
 assert_contains "${HEADER_FILE}" "Set-Cookie: aerosentinel_session="
 assert_contains "${HEADER_FILE}" "Location: /mission/alpha-0426"
 

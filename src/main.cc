@@ -349,6 +349,14 @@ drogon::HttpResponsePtr redirectTo(const std::string &location)
     return response;
 }
 
+drogon::HttpResponsePtr redirectAfterPostTo(const std::string &location)
+{
+    auto response = drogon::HttpResponse::newHttpResponse();
+    response->setStatusCode(drogon::k303SeeOther);
+    response->addHeader("Location", location);
+    return response;
+}
+
 bool isAuthenticated(const drogon::HttpRequestPtr &request,
                      const std::shared_ptr<SessionStore> &sessions)
 {
@@ -410,7 +418,8 @@ int main(int argc, char *argv[])
 
     if (std::getenv("AEROSENTINEL_PASSWORD") == nullptr)
     {
-        LOG_WARN << "AEROSENTINEL_PASSWORD is not set; using development password 'admin'.";
+        LOG_WARN << "AEROSENTINEL_PASSWORD is not set; using development credentials "
+                 << "username='" << auth.username << "', password='admin'.";
     }
 
     auto &app = drogon::app();
@@ -488,7 +497,7 @@ int main(int argc, char *argv[])
             if (constantTimeEquals(username, auth.username) &&
                 constantTimeEquals(password, auth.password))
             {
-                auto response = redirectTo("/mission/alpha-0426");
+                auto response = redirectAfterPostTo("/mission/alpha-0426");
                 response->addHeader("Cache-Control", "no-store");
                 response->addHeader("Set-Cookie", sessionCookie(sessions->create(), auth.secureCookies));
                 callback(response);
@@ -496,7 +505,7 @@ int main(int argc, char *argv[])
             }
 
             LOG_WARN << "Failed login attempt for user '" << username << "'";
-            callback(redirectTo("/login?error=1"));
+            callback(redirectAfterPostTo("/login?error=1"));
         },
         {drogon::Post});
 
