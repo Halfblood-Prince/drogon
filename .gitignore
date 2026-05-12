@@ -10,3 +10,5 @@ logs/
 *.suo
 *.swp
 *.tmp
+__pycache__/
+.venv/

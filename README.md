@@ -46,6 +46,10 @@ cmake --build build --config RelWithDebInfo
 ctest --test-dir build --output-on-failure
 ```
 
+## Python Flask Version
+
+The `python/` folder contains a Flask implementation of the same app. It reuses the shared `public/` dashboard files and provides the same login, logout, dashboard, and mission API routes.
+
 ## CI Binaries
 
 `.github/workflows/build-binaries.yml` builds and uploads release artifacts for Linux, Windows, and macOS on x64 and arm64 GitHub-hosted runners. It also creates:
